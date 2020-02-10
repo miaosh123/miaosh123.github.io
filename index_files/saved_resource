@@ -1,0 +1,618 @@
+
+
+
+.mod-ernie{width: 100%; background: #9c1718;}
+.mod-ernie-content{height: 410px; width: 100%; background: #ff3a3c;}
+.mod-ernie-wrp{height: 410px; width: 100%; margin: 0 auto; position: relative;
+  background: url(//pic.kuaizhan.com/g2/M01/A2/C4/wKjmqldFkNGAElBgAAHHnb5nSLk3440946) center no-repeat;
+  background-size: 320px 410px;}
+.mod-ernie-canvas{width: 280px; padding: 20px; height: 280px; position: relative; overflow: hidden; margin: 0 auto;}
+.mod-ernie-header{ position: relative; font-size: 16px; font-weight: bold; height: 50px; width: 100%; border-bottom: 1px solid #ff778f; background: #fff; text-align: center; line-height: 50px;}
+.mod-ernie-potiter{ position: absolute; height: 67px; width: 24px;top: 103px; z-index: 1;
+left: 148px; background:url(//kzcdn.itc.cn/pub/kuaizhan_sys_plugins/ernie/img/d4e4d25133b40991067580ae17e2c1d9.png) no-repeat;}
+.mod-ernie-tic{ color: #ffffff; text-align: center;}
+.mod-ernie-btn{ width: 199px; font-size: 18px;  height: 52px; text-align: center; line-height: 46px; margin: 0 auto; margin-top:10px; color:#a73d3d;
+background: url(//kzcdn.itc.cn/pub/kuaizhan_sys_plugins/ernie/img/48151bd4853d4c4ba1acc6154d5670ec.png) no-repeat;}
+.mod-ernie-bottom{ padding: 20px; width: 280px; margin: 0 auto;}
+.mod-ernie-title{color: #fff; font-size: 18px;margin-bottom: 11px;opacity: 0.7;}
+.ernie-prize, .ernie-illustration{color:#f0c0c0;font-size: 14px;opacity: 0.6;}
+.mod-ernie-back{ position: absolute; width: 28px; height: 26px; top:10px; left: 20px;
+  background: url(//kzcdn.itc.cn/pub/kuaizhan_sys_plugins/ernie/img/22614cd735a91100aebff9964b5d5f9d.png) no-repeat;}
+.mod-ernie-jump{text-decoration:underline; color: #ffc000; font-size: 15px;}
+.ernie-ui-alert{width: 294px; height: 75px; padding-top: 100px; top:50%; margin-top: -25%; left: 50%; margin-left: -147px; background:url(//pic.kuaizhan.com/g2/M00/A1/0C/CgpQVFdFjYKAQcm3AABm7IlVi8E8770879) no-repeat;position: fixed;
+background-size: 300px 175px; z-index: 200;text-align: center;line-height: 30px;font-size: 22px; color: #666666;}
+.ernie-credit-ui-alert{width: 300px; height: 180px; left: 50%; margin-left: -150px; position: absolute; border-radius: 10px;
+background-size: 300px 175px; top: 238px;z-index: 200;text-align: center;line-height: 30px;font-size: 18px; color: #333333; background-color: #ffffff}
+.erine-credit-message{width: 300px; height: 108px; position: relative; border-bottom: 1px solid #dadada;}
+.erine-credit-button{width: 300px; height: 72px; position: relative;}
+.ok-button, .cancel-button{width: 149px; height: 72px; position: relative; display: inline-block; line-height: 72px; font-size: 22px;}
+.ok-button{border-left: 1px solid #dadada; color: #3c9bf5}
+.erine-credit-message h1{height: 108px; line-height: 108px;}
+.ernie-ui-alert .close{ height: 31px; width: 31px;position: absolute; right: -11px; top: 47px;
+  background: url(//kzcdn.itc.cn/pub/kuaizhan_sys_plugins/ernie/img/c8487fd0881e9f7dea5838f9f34b559a.png) no-repeat;}
+.ernie-ui-shadow{position: fixed; top: 0px; left: 0px; z-index: 120; background: #000; opacity: 0.84;}
+.myCanvas-stop1{
+  transform:rotate(30deg);
+  -ms-transform:rotate(30deg);   
+  -moz-transform:rotate(30deg);  
+  -webkit-transform:rotate(30deg); 
+  -o-transform:rotate(30deg);  
+  -webkit-animation: stop1 6s;
+}
+.myCanvas-stop2{
+  -webkit-transform:rotate(90deg); 
+  -webkit-animation: stop2 6s;
+}
+.myCanvas-stop3{
+  -webkit-transform:rotate(150deg); 
+  -webkit-animation: stop3 6s;
+}
+.myCanvas-stop4{
+  -webkit-transform:rotate(210deg); 
+  -webkit-animation: stop4 6s;
+}
+.myCanvas-stop5{
+  -webkit-transform:rotate(270deg); 
+  -webkit-animation: stop5 6s;
+}
+.myCanvas-stop6{
+  -webkit-transform:rotate(330deg); 
+  -webkit-animation: stop6 6s;
+}
+@-webkit-keyframes stop1{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3270deg)}
+}
+@-webkit-keyframes stop2{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3330deg)}
+}
+@-webkit-keyframes stop3{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3390deg)}
+}
+@-webkit-keyframes stop4{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3450deg)}
+}
+@-webkit-keyframes stop5{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3510deg)}
+}
+@-webkit-keyframes stop6{from{-webkit-transform: rotate(0deg)}
+to{-webkit-transform: rotate(3570deg)}
+}
+
+.mod-scrape{background:#da2222; overflow: hidden;}
+.mod-scrape-header{max-width: 320px; width: 100%; height: 200px; margin: 0 auto;
+ background: url(//pic.kuaizhan.com/g2/M01/A2/C2/wKjmqldFjwmAe472AACuX4xjpfo0457329) no-repeat center;
+ background-size: 100%;}
+.mod-scrape-bottom{background: #da2222; max-width: 320px; width: 100%; text-align: center; padding-bottom: 15px; margin: 0 auto;}
+.mod-scrape-title{color: #f0cb22;font-size: 18px; display: inline-block; padding-bottom: 10px; max-width: 240px; line-height: 24px; margin-top: 2px; word-break:break-all;}
+.mod-scrape-btn{max-width: 244px; width: 100%; height: 52px;  text-align: center; line-height: 48px; color: #a73d3d; font-size: 14px;
+background: url(//kzcdn.itc.cn/pub/kuaizhan_sys_plugins/scrape/img/94df8ec537cbeda56490d6bf0510d8c2.png) no-repeat; margin: 0 auto;}
+
+
+@keyframes pop_from_bottom {
+    from {height: 0px;}
+    to {height: 135px;}
+}
+@-webkit-keyframes pop_from_bottom {
+    from {height: 0px;}
+    to {height: 135px;}
+}
+.mod-sign.msg-container {
+    position: fixed;
+    float: left;
+    left: 8%;
+    top: 50%;
+    margin-top: -99px;
+    width: 84%;
+    height: 198px;
+    text-align: center;
+    background-color: white;
+    border: 1px solid #c2c2c2;
+    border-radius: 5px;
+    z-index: 1000;
+    height: 198px;
+}
+.mod-sign.msg-container .title {
+    margin-top: 10px;
+    font-size: 18px;
+    top: 20px;
+    width: 100%;
+    color: #666666;
+    line-height: 20px;
+    height: 20px;
+}
+.mod-sign.msg-container img {
+    width: 40px;
+    height: 40px;
+    margin-top: 17px;
+}
+.mod-sign.msg-container .change {
+    margin-top: 9px;
+    font-size: 19px;
+    color: #27acff;
+}
+.mod-sign.msg-container .msg {
+    margin-top: 9px;
+    width: 100%;
+    font-size: 14px;
+    color: #666666;
+    line-height: 16px;
+    height: 16px;
+}
+.mod-sign.success-msg .btn {
+    bottom: 0px;
+    position: absolute;
+    margin-top: 9px;
+    height: 44px;
+    border-top: 1px solid #aeaeae;
+    width: 100%;
+    border-radius: 5px;
+}
+.mod-sign.success-msg button {
+    width: 50%;
+    bottom: 0;
+    height: 100%;
+    border: 0;
+    background-color: white;
+    color: #27acff;
+}
+.mod-sign.success-msg button a {
+    color: #27acff;
+}
+.mod-sign.success-msg button:first-child {
+    border-right: 1px solid #aeaeae;
+    border-radius: 0 0 0 5px;
+}
+.mod-sign.success-msg button:last-child {
+    border-radius: 0 0 5px 0px;
+}
+.mod-sign.err-msg.msg-container {
+    height: 109px;
+    margin-top: -55px;
+    left: 20%;
+    width: 60%;
+}
+.mod-sign.err-msg .err-confirm {
+    width: 100%;
+    border-radius: 0 0 5px 5px;
+    bottom: 0;
+    height: 44px;
+    border: 0;
+    background-color: white;
+    color: #27acff;
+}
+.mod-sign.err-msg .btn {
+    margin-top: 10px;
+    height: 45px;
+    border-top: 1px solid #aeaeae;
+}
+.mod-sign.shadow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    opacity: 0.45;
+    z-index: 999;
+}
+.mod-sign.share-container {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    z-index: 1000;
+    background-color: #e5e5e5;
+    height: 135px;
+    animation: 0.5s pop_from_bottom;
+}
+.mod-sign.share-container .link-container {
+    min-height: 40px;
+    margin: 10px 0;
+    text-align: center;
+}
+.mod-sign.share-container button {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    height: 40px;
+    width: 100%;
+    border: 0;
+    color: #1a93de;
+    font-size: 18px;
+}
+.mod-sign.share-container .link-item {
+    width: 55px;
+    display: inline-block;
+    margin-left: 20px;
+}
+.mod-sign.share-container .link-item:first-child {
+    margin-left: 0px;
+}
+.mod-sign.share-container a {
+    display: inline-block;
+    background: url(//kzcdn.itc.cn/res/skin/images/share.png) no-repeat;
+    background-size: 320px 39px;
+    vertical-align: middle;
+    line-height: 100%;
+    width: 55px;
+    height: 55px;
+    vertical-align: top;
+    background-color: white;
+    border-radius: 15px;
+}
+.mod-sign.share-container .link-item span {
+    color: #585858;
+    margin-top: 5px;
+    display: inline-block;
+    font-size: 14px;
+}
+.mod-sign.share-container .weixin {
+    background-position: -256px;
+}
+.mod-sign.share-container .qzone {
+    background-position: -112px;
+}
+.mod-sign.share-container .sina {
+    background-position: -66px;
+}
+
+@font-face
+{
+    font-family: 'iconfont';
+    src: url('//at.alicdn.com/t/font_1410676326_7949686.eot');
+    src: url('//at.alicdn.com/t/font_1410676326_7949686.eot?#iefix') format('embedded-opentype'),
+    url('//at.alicdn.com/t/font_1410676326_7949686.woff') format('woff'),
+    url('//at.alicdn.com/t/font_1410676326_7949686.ttf') format('truetype'),
+    url('//at.alicdn.com/t/font_1410676326_7949686.svg#iconfont') format('svg');
+}
+.clearFloat::before,
+.clearFloat::after{
+  display: block;
+  content: '';
+  height: 0;
+  overflow: hidden;
+  clear: both; }
+.mod-a-form
+{
+    position: relative;
+    text-align: center;
+    background: #fff;
+}
+.mod-a-form .f-placehodel
+{
+    padding: 25px 0;
+}
+.f-setting .ui-tab
+{
+    min-height: 150px;
+}
+.f-setting .ui-tab
+{
+    min-height: 150px;
+}
+.mod-a-form .iconfont
+{
+    font-family: 'iconfont';
+    font-size: 12px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: .1px;
+}
+.mod-a-form .f-form-page
+{
+    font-size: 14px;
+    color: #666;
+}
+.mod-a-form .f-form-page *
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.mod-a-form .f-form-page .clearfix
+{
+    *zoom: 1;
+}
+.mod-a-form .f-form-page .clearfix:before,
+.mod-a-form .f-form-page .clearfix:after
+{
+    line-height: 0;
+    display: table;
+    content: '';
+}
+.mod-a-form .f-form-page .clearfix:after
+{
+    clear: both;
+}
+.mod-a-form .f-form-page .f-btn
+{
+    font-size: 14px;
+    display: inline-block;
+    padding: 5px 30px;
+    text-decoration: none;
+    color: #666;
+    border: #a8acad 1px solid;
+    border-radius: 3px;
+}
+.mod-a-form .f-form-page .f-btn i,
+.mod-a-form .f-form-page .f-btn span,
+.mod-a-form .f-form-page .f-btn em
+{
+    vertical-align: middle;
+}
+.mod-a-form .f-form-page .f-btn i
+{
+    font-size: 16px;
+    margin-right: 5px;
+}
+.mod-a-form .f-form-page .f-btn:hover
+{
+    color: #3591d4;
+    background: #fff;
+}
+.mod-a-form .f-form-page ul
+{
+    list-style: none;
+}
+.mod-a-form .f-form-page em
+{
+    font-style: normal;
+}
+.mod-a-form .f-form-page h1
+{
+    font-size: 16px;
+    line-height: 28px;
+    text-align: center;
+}
+.mod-a-form .f-form-page h2
+{
+    font-size: 14px;
+}
+.mod-a-form .f-form-page h2 span
+{
+    color: #a8d7f3;
+}
+.mod-a-form .f-form-page .f-form-title
+{
+    color: #fff;
+    background: #1a8fda;
+    padding:5px 20px 5px 20px;
+}
+.mod-a-form .f-form-page .f-subtitle
+{
+    text-align: center;
+}
+.mod-a-form .f-form-page .f-select
+{
+    font-size: 14px;
+    position: relative;
+    z-index: 9;
+    height: 28px;
+    padding: 0 5px;
+    cursor: pointer;
+    color: #666;
+    border: #a8acad 1px solid;
+    border-radius: 4px;
+    background: #fefefe;
+    background: -webkit-linear-gradient(top, #fefefe, #f3f3f3);
+    background:         linear-gradient(top, #fefefe, #f3f3f3);
+}
+.mod-a-form .f-form-page .f-select em
+{
+    float: left;
+    overflow: hidden;
+    margin: 7px 0 0 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 91%;
+}
+.mod-a-form .f-form-page .f-select i
+{
+    font-size: 18px;
+    float: right;
+    width: 18px;
+    margin: 3px 0 0 0;
+}
+.mod-a-form .f-form-page .f-select .f-option-list
+{
+    position: absolute;
+    top: 31px;
+    left: 0;
+    display: none;
+    overflow: hidden;
+    width: 100%;
+    border: #1a8fda 1px solid;
+    border-radius: 4px;
+    background: #fff;
+}
+.mod-a-form .f-form-page .f-option-list li
+{
+    padding:6px 8px;
+    cursor: pointer;
+}
+.mod-a-form .f-form-page .f-option-list li:hover
+{
+    background: #e8f4fb;
+}
+.mod-a-form .f-form-page .f-form-view .f-title
+{
+    padding: 10px 15px;
+    text-align: center;
+    background: #f7f7f7;
+}
+.mod-a-form .f-form-page .f-form-view .f-title h1
+{
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 0;
+}
+.mod-a-form .f-form-page .f-form-item
+{
+    position: relative;
+    padding: 15px 15px;
+    text-align: left;
+    border-bottom: #e3e3e3 1px dashed;
+}
+.mod-a-form .f-form-page .f-form-item h2
+{
+    font-size: 14px;
+    font-weight: bold;
+}
+.mod-a-form .f-form-page .f-form-item .f-item-wrap
+{
+    padding: 10px 0 5px 0;
+}
+.mod-a-form .f-form-page .f-form-item .f-item-wrap .f-option-list
+{
+    overflow: hidden;
+    border: #1a8fda 1px solid;
+    border-radius: 4px;
+    background: #fff;
+}
+.mod-a-form .f-form-page .f-form-item .f-control
+{
+    margin: 10px 0 0 0;
+}
+.f-form-page .f-form-item .f-control label {
+    display: -webkit-flex;
+    display: flex; }
+.f-form-page .f-form-item .f-control label span {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    vertical-align: middle;
+    -webkit-flex: 1;
+    flex: 1; }
+.mod-a-form .f-form-page .f-form-item .f-chengge-checked
+{
+    display: inline-block;
+    display: none\0;
+    width: 25px;
+}
+.mod-a-form .f-form-page .f-form-item .f-chengge-checked i
+{
+    font-size: 20px;
+}
+.mod-a-form .f-form-page .f-form-item .f-control label input
+{
+    display: none;
+    display: inline\0;
+    *display: inline;
+}
+.mod-a-form .f-form-page .f-form-item .f-control label input + em .checken-01
+{
+    display: inline-block;
+}
+.mod-a-form .f-form-page .f-form-item .f-control label input + em .checken-02
+{
+    display: none;
+}
+.mod-a-form .f-form-page .f-form-item .f-control label input:checked + em .checken-01
+{
+    display: none;
+}
+.mod-a-form .f-form-page .f-form-item .f-control label input:checked + em .checken-02
+{
+    font-weight: bold;
+    display: inline-block;
+    color: #3591d4;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-img,
+.mod-a-form .f-form-page .f-form-item .f-control .f-img img
+{
+    width: 60px;
+    height: 60px;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-img
+{
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+    vertical-align: top;
+    *display: inline;
+    *zoom: 1;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-img img
+{
+    display: block;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-radio,
+.mod-a-form .f-form-page .f-form-item .f-control .f-checkbox
+{
+    margin: 0 5px 0 0;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-input,
+.mod-a-form .f-form-page .f-form-item .f-control .f-textarea
+{
+    font-size: 14px;
+    box-sizing: border-box;
+    width: 100%;
+    border: #a8acad 1px solid;
+    border-radius: 3px;
+    box-shadow: none;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-input
+{
+    height: 30px;
+    padding: 2px 5px;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-textarea
+{
+    height: 90px;
+    padding: 2px 5px;
+}
+.mod-a-form .f-form-page .f-line
+{
+    height: 0;
+    border: none;
+    border-top: #666 1px dashed;
+    background: #fff;
+}
+.mod-a-form .f-form-page .f-btn-wrap
+{
+    padding: 15px;
+}
+.mod-a-form .f-form-page .f-btn-wrap a
+{
+    display: block;
+    padding: 10px 0;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    background: #1a8fda;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-span {
+    background: #1a8fda;
+    color: #fff;
+    border: #1a8fda 1px solid;
+    border-radius: 3px;
+    display: inline-block;
+    font-size: 14px;
+    padding: 9px 0px;
+    width: 100%;
+    margin: 10px auto -25px;
+    overflow: hidden;
+    text-align: center; 
+}
+.mod-a-form .f-form-page .f-form-item .f-control .file-image{
+    background: #1a8fda;
+    color: #fff;
+    border: #1a8fda 1px solid;
+    border-radius: 3px;
+    display: inline-block;
+    font-size: 14px;
+    padding: 8px 0px;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    opacity: 0;
+    margin: -15px 0px 0px 0px;  
+}
+.mod-a-form .f-form-page .f-form-item .f-control .image-style{
+    border-radius: 2px;
+    box-shadow: 0px 1px 4px rgba(0,0,0,.4);
+    text-align: center;
+}
+.mod-a-form .f-form-page .f-form-item .f-control .f-image{
+    max-width: 100%;}
