@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵少的禁言券生成器</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        input, button, textarea { margin: 5px; }
+        #history { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<h1>喵少的禁言券生成器</h1>
+
+<label for="qqInput">QQ号:</label>
+<input type="text" id="qqInput" placeholder="输入QQ号"><br>
+
+<label for="timeInput">禁言时间:</label>
+<input type="text" id="timeInput" placeholder="输入禁言时间(分钟)"><br>
+
+<button id="generate">生成CDKEY</button>
+<input type="text" id="cdkey" placeholder="生成的CDKEY" readonly><br>
+
+<h2>解密禁言券CDKEY</h2>
+<input type="text" id="decryptInput" placeholder="输入CDKEY解密">
+<button id="decrypt">解密</button>
+<input type="text" id="decryptedOutput" placeholder="解密结果" readonly><br>
+
+<h2>保存和加载记录</h2>
+<textarea id="jsonInput" rows="5" cols="50" placeholder="输入JSON数据"></textarea><br>
+<button id="save">保存到本地</button>
+<button id="load">加载记录</button>
+<button id="clear">清除历史记录</button>
+
+<h2>历史记录</h2>
+<pre id="history"></pre>
+
+<script>
+    let cdkeys = [];
+    let count = 0;
+
+    // 简单加密函数
+    function encrypt(input) {
+        return btoa(input); // 使用Base64编码作为简单的加密方式
+    }
+
+    // 生成CDKEY函数
+    function generateCDKEY() {
+        const qq = document.getElementById('qqInput').value;
+        const time = document.getElementById('timeInput').value;
+
+        if (!qq || !time) {
+            alert('请填写QQ号和禁言时间。');
+            return;
+        }
+
+        // 增加生成次数
+        count++;
+
+        const cdkey = encrypt(`${qq}-${time}-${count}`);
+        document.getElementById('cdkey').value = cdkey;
+
+        cdkeys.push({ qq, time, cdkey, count });
+        updateHistory();
+    }
+
+    // 解密CDKEY函数
+    function decryptCDKEY() {
+        const cdkey = document.getElementById('decryptInput').value;
+        try {
+            const decrypted = atob(cdkey);
+            document.getElementById('decryptedOutput').value = decrypted;
+        } catch (e) {
+            alert('无效的CDKEY或解密失败。');
+        }
+    }
+
+    // 更新历史记录
+    function updateHistory() {
+        document.getElementById('history').textContent = JSON.stringify(cdkeys, null, 2);
+    }
+
+    // 保存记录到本地存储
+    function saveToLocal() {
+        localStorage.setItem('cdkeys', JSON.stringify(cdkeys));
+        alert('CDKEY记录已保存！');
+    }
+
+    // 加载记录
+    function loadFromLocal() {
+        const savedCDKeys = localStorage.getItem('cdkeys');
+        if (savedCDKeys) {
+            cdkeys = JSON.parse(savedCDKeys);
+            // 确保count从最后一个记录获取
+            count = cdkeys.length > 0 ? cdkeys[cdkeys.length - 1].count : 0;
+            updateHistory();
+            alert('CDKEY记录已加载！');
+        } else {
+            alert('没有找到保存的CDKEY记录。');
+        }
+    }
+
+    // 从文本框加载JSON
+    function loadFromInput() {
+        try {
+            const inputJson = document.getElementById('jsonInput').value;
+            cdkeys = JSON.parse(inputJson);
+            // 确保count从最后一个记录获取
+            count = cdkeys.length > 0 ? cdkeys[cdkeys.length - 1].count : 0;
+            updateHistory();
+            alert('CDKEY记录已从输入加载！');
+        } catch (e) {
+            alert('无效的JSON格式。');
+        }
+    }
+
+    // 清除历史记录
+    function clearHistory() {
+        cdkeys = [];
+        count = 0;
+        localStorage.removeItem('cdkeys'); // 清除本地存储
+        localStorage.removeItem('cdkeys'); // 清除本地存储
+        updateHistory(); // 更新历史记录显示
+        alert('历史记录已清除！');
+    }
+
+    // 事件监听器
+    document.getElementById('generate').addEventListener('click', generateCDKEY);
+    document.getElementById('decrypt').addEventListener('click', decryptCDKEY);
+    document.getElementById('save').addEventListener('click', saveToLocal);
+    document.getElementById('load').addEventListener('click', loadFromLocal);
+    document.getElementById('jsonInput').addEventListener('blur', loadFromInput);
+    document.getElementById('clear').addEventListener('click', clearHistory); // 绑定清除历史记录按钮
+
+    // 页面加载时尝试加载记录
+    window.onload = loadFromLocal;
+
+</script>
+
+</body>
+</html>
