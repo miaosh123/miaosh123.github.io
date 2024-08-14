@@ -86,7 +86,30 @@
 <body>
 
 <div class="container">
-    <h1>喵少的免口券生成器 v0.1.9</h1>
+    <h1>喵少的免口券生成器 v0.1.9.1</h1>
+	    <div class="announcement">
+        <button class="toggle-button" onclick="toggleAnnouncement()">公告</button>
+        <div id="announcement-content" class="announcement-content" style="display: none;">
+            <p>欢迎使用喵少的免口券生成器！</p>
+            <ul>
+                <li>v0.1.9.1_1.修正历史记录的“随机字符串”刷新后乱跳问题</li>
+                <li>v0.1.9.1_2.增加公告栏</li>
+                <li>v0.1.9.0_1.重置了CDKEY加密方法</li>
+				<li>v0.1.9.0_2.修正历史记录中"CDKEY"显示不完整的问题</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnnouncement() {
+            const content = document.getElementById('announcement-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+    </script>
 
     <label for="qqInput">QQ号:</label>
     <input type="text" id="qqInput" placeholder="输入QQ号">
@@ -168,26 +191,25 @@ function generateCDKEY() {
     updateHistory();
 }
 
-    // 更新历史记录
-    function updateHistory() {
-        const historyDiv = document.getElementById('history');
-        historyDiv.innerHTML = ''; // 清空历史记录
-        for (const qq in cdkeys) {
-            cdkeys[qq].forEach(entry => {
-                const shortCdkey = entry.cdkey.substring(0, 10) + '...'; // 只显示前10个字符
-                const entryDiv = document.createElement('div'); // 创建新的 div 元素
-                entryDiv.className = 'history-entry'; // 添加类名
-                              // 使用 span 标签单独设置每个标签的颜色
-                entryDiv.innerHTML = `
-                    <span class="label-text">QQ:</span> ${qq}, 
-                    <span class="label-text">禁言时间（分钟）:</span> ${entry.time}, 
-                    <span class="label-text">随机字符串:</span> ${Math.random().toString(36).substring(2, 10)}, 
-                    <span class="label-text">CDKEY:</span> ${shortCdkey}
-                `; // 设置 HTML 内容
-               historyDiv.appendChild(entryDiv); // 将新元素添加到历史记录中
-			           localStorage.setItem('cdkeys', JSON.stringify(cdkeys));
+// 更新历史记录
+function updateHistory() {
+    const historyDiv = document.getElementById('history');
+    historyDiv.innerHTML = ''; // 清空历史记录
+    for (const qq in cdkeys) {
+        cdkeys[qq].forEach(entry => {
+            const shortCdkey = entry.cdkey.substring(0, 100); // 只显示前100个字符
+            const entryDiv = document.createElement('div'); // 创建新的 div 元素
+            entryDiv.className = 'history-entry'; // 添加类名
+            entryDiv.innerHTML = `
+                <span class="label-text">QQ:</span> ${qq}, 
+                <span class="label-text">禁言时间（分钟）:</span> ${entry.time}, 
+                <span class="label-text">随机字符串:</span> ${entry.randomString}, 
+                <span class="label-text">CDKEY:</span> ${shortCdkey}
+            `; // 设置 HTML 内容
+            historyDiv.appendChild(entryDiv); // 将新元素添加到历史记录中
         });
     }
+    localStorage.setItem('cdkeys', JSON.stringify(cdkeys)); // 保存到本地存储
 }
 
     // 复制CDKEY到剪贴板
