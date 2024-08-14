@@ -78,6 +78,9 @@
         margin-bottom: 5px; /* 每条记录之间的间距 */
         white-space: nowrap; /* 防止内容换行 */
     }
+    .label-text {
+        color: red; /* 设置标签文本颜色为红色 */
+    }
     </style>
 </head>
 <body>
@@ -174,7 +177,13 @@ function generateCDKEY() {
                 const shortCdkey = entry.cdkey.substring(0, 10) + '...'; // 只显示前10个字符
                 const entryDiv = document.createElement('div'); // 创建新的 div 元素
                 entryDiv.className = 'history-entry'; // 添加类名
-                entryDiv.textContent = `QQ: ${qq}, 禁言时间（分钟）: ${entry.time}, 随机字符串: ${entry.randomString}\n, CDKEY: ${entry.cdkey}`; // 新增随机字符串
+                              // 使用 span 标签单独设置每个标签的颜色
+                entryDiv.innerHTML = `
+                    <span class="label-text">QQ:</span> ${qq}, 
+                    <span class="label-text">禁言时间（分钟）:</span> ${entry.time}, 
+                    <span class="label-text">随机字符串:</span> ${Math.random().toString(36).substring(2, 10)}, 
+                    <span class="label-text">CDKEY:</span> ${shortCdkey}
+                `; // 设置 HTML 内容
                historyDiv.appendChild(entryDiv); // 将新元素添加到历史记录中
 			           localStorage.setItem('cdkeys', JSON.stringify(cdkeys));
         });
