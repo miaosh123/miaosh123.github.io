@@ -12,13 +12,13 @@
 </head>
 <body>
 
-<h1>喵少的禁言券生成器</h1>
+<h1>喵少的禁言券生成器 v0.1.1</h1>
 
 <label for="qqInput">QQ号:</label>
 <input type="text" id="qqInput" placeholder="输入QQ号"><br>
 
 <label for="timeInput">禁言时间:</label>
-<input type="text" id="timeInput" placeholder="输入禁言时间(分钟)"><br>
+<input type="text" id="timeInput" placeholder="输入禁言时间"><br>
 
 <button id="generate">生成CDKEY</button>
 <input type="text" id="cdkey" placeholder="生成的CDKEY" readonly><br>
@@ -38,8 +38,8 @@
 <pre id="history"></pre>
 
 <script>
-    let cdkeys = [];
-    let count = 0;
+    const cdkeys = {};
+    let currentCdkeyIndex = {};
 
     // 简单加密函数
     function encrypt(input) {
@@ -48,27 +48,42 @@
 
     // 生成CDKEY函数
     function generateCDKEY() {
-        const qq = document.getElementById('qqInput').value;
-        const time = document.getElementById('timeInput').value;
+        const qq = document.getElementById('qqInput').value.trim();
+        const time = document.getElementById('timeInput').value.trim();
 
         if (!qq || !time) {
             alert('请填写QQ号和禁言时间。');
             return;
         }
 
-        // 增加生成次数
-        count++;
+        // 如果该QQ号第一次生成CDKEY，则初始化序列号
+        if (!currentCdkeyIndex[qq]) {
+            currentCdkeyIndex[qq] = 1;
+        } else {
+            currentCdkeyIndex[qq]++;
+        }
 
-        const cdkey = encrypt(`${qq}-${time}-${count}`);
+        const uniqueId = currentCdkeyIndex[qq]; // 使用当前序列号作为唯一编号
+        const cdkey = encrypt(`${uniqueId}-${qq}-${time}`);
+
+        // 将记录保存到对象中
+        if (!cdkeys[qq]) {
+            cdkeys[qq] = [];
+        }
+        cdkeys[qq].push({ uniqueId, qq, time, cdkey });
+        
+        // 显示生成的CDKEY
         document.getElementById('cdkey').value = cdkey;
-
-        cdkeys.push({ qq, time, cdkey, count });
         updateHistory();
     }
 
     // 解密CDKEY函数
     function decryptCDKEY() {
-        const cdkey = document.getElementById('decryptInput').value;
+        const cdkey = document.getElementById('decryptInput').value.trim();
+        if (!cdkey) {
+            alert('请输入CDKEY进行解密。');
+            return;
+        }
         try {
             const decrypted = atob(cdkey);
             document.getElementById('decryptedOutput').value = decrypted;
@@ -92,9 +107,10 @@
     function loadFromLocal() {
         const savedCDKeys = localStorage.getItem('cdkeys');
         if (savedCDKeys) {
-            cdkeys = JSON.parse(savedCDKeys);
-            // 确保count从最后一个记录获取
-            count = cdkeys.length > 0 ? cdkeys[cdkeys.length - 1].count : 0;
+            Object.assign(cdkeys, JSON.parse(savedCDKeys));
+            for (const qq in cdkeys) {
+                currentCdkeyIndex[qq] = cdkeys[qq].length; // 更新当前序列号
+            }
             updateHistory();
             alert('CDKEY记录已加载！');
         } else {
@@ -104,25 +120,30 @@
 
     // 从文本框加载JSON
     function loadFromInput() {
-        try {
-            const inputJson = document.getElementById('jsonInput').value;
-            cdkeys = JSON.parse(inputJson);
-            // 确保count从最后一个记录获取
-            count = cdkeys.length > 0 ? cdkeys[cdkeys.length - 1].count : 0;
-            updateHistory();
-            alert('CDKEY记录已从输入加载！');
-        } catch (e) {
-            alert('无效的JSON格式。');
+    try {
+        const inputJson = document.getElementById('jsonInput').value;
+        Object.assign(cdkeys, JSON.parse(inputJson));
+        for (const qq in cdkeys) {
+            currentCdkeyIndex[qq] = cdkeys[qq].length; // 更新当前序列号
         }
+        updateHistory();
+        alert('CDKEY记录已加载！');
+    } catch (e) {
+        alert('无效的JSON格式。');
+    }
     }
 
     // 清除历史记录
     function clearHistory() {
-        cdkeys = [];
-        count = 0;
+        for (const qq in cdkeys) {
+            delete cdkeys[qq]; // 删除所有QQ号的记录
+        }
         localStorage.removeItem('cdkeys'); // 清除本地存储
-        localStorage.removeItem('cdkeys'); // 清除本地存储
-        updateHistory(); // 更新历史记录显示
+        currentCdkeyIndex = {}; // 重置序列号
+        document.getElementById('cdkey').value = '';
+        document.getElementById('decryptInput').value = '';
+        document.getElementById('decryptedOutput').value = '';
+        document.getElementById('history').textContent = '';
         alert('历史记录已清除！');
     }
 
@@ -141,3 +162,4 @@
 
 </body>
 </html>
+
