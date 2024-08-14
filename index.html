@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<h1>喵少的禁言券生成器 v0.1.1</h1>
+<h1>喵少的禁言券生成器 v0.1.6</h1>
 
 <label for="qqInput">QQ号:</label>
 <input type="text" id="qqInput" placeholder="输入QQ号"><br>
@@ -22,6 +22,7 @@
 
 <button id="generate">生成CDKEY</button>
 <input type="text" id="cdkey" placeholder="生成的CDKEY" readonly><br>
+<button id="copy">复制CDKEY</button>
 
 <h2>解密禁言券CDKEY</h2>
 <input type="text" id="decryptInput" placeholder="输入CDKEY解密">
@@ -31,19 +32,26 @@
 <h2>保存和加载记录</h2>
 <textarea id="jsonInput" rows="5" cols="50" placeholder="输入JSON数据"></textarea><br>
 <button id="save">保存到本地</button>
-<button id="load">加载记录</button>
+<button id="import">导入JSON数据</button> <!-- 新增导入按钮 -->
+<button id="export">导出记录为JSON</button>
+<input type="text" id="filenameInput" placeholder="输入文件名" value="cdkeys.json"><br>
 <button id="clear">清除历史记录</button>
 
 <h2>历史记录</h2>
 <pre id="history"></pre>
 
 <script>
-    const cdkeys = {};
+    let cdkeys = {}; // 修改为 let 以允许更新
     let currentCdkeyIndex = {};
 
     // 简单加密函数
     function encrypt(input) {
-        return btoa(input); // 使用Base64编码作为简单的加密方式
+        return btoa(unescape(encodeURIComponent(input)));
+    }
+
+    // 解密函数
+    function decrypt(input) {
+        return decodeURIComponent(escape(atob(input)));
     }
 
     // 生成CDKEY函数
@@ -56,23 +64,20 @@
             return;
         }
 
-        // 如果该QQ号第一次生成CDKEY，则初始化序列号
         if (!currentCdkeyIndex[qq]) {
             currentCdkeyIndex[qq] = 1;
         } else {
             currentCdkeyIndex[qq]++;
         }
 
-        const uniqueId = currentCdkeyIndex[qq]; // 使用当前序列号作为唯一编号
+        const uniqueId = currentCdkeyIndex[qq];
         const cdkey = encrypt(`${uniqueId}-${qq}-${time}`);
 
-        // 将记录保存到对象中
         if (!cdkeys[qq]) {
             cdkeys[qq] = [];
         }
         cdkeys[qq].push({ uniqueId, qq, time, cdkey });
-        
-        // 显示生成的CDKEY
+
         document.getElementById('cdkey').value = cdkey;
         updateHistory();
     }
@@ -85,7 +90,7 @@
             return;
         }
         try {
-            const decrypted = atob(cdkey);
+            const decrypted = decrypt(cdkey);
             document.getElementById('decryptedOutput').value = decrypted;
         } catch (e) {
             alert('无效的CDKEY或解密失败。');
@@ -94,7 +99,13 @@
 
     // 更新历史记录
     function updateHistory() {
-        document.getElementById('history').textContent = JSON.stringify(cdkeys, null, 2);
+        const historyArray = [];
+        for (const qq in cdkeys) {
+            cdkeys[qq].forEach(record => {
+                historyArray.push(`QQ: ${record.qq}, 禁言时间: ${record.time}, CDKEY: ${record.cdkey}`);
+            });
+        }
+        document.getElementById('history').textContent = historyArray.join('\n');
     }
 
     // 保存记录到本地存储
@@ -103,61 +114,68 @@
         alert('CDKEY记录已保存！');
     }
 
-    // 加载记录
-    function loadFromLocal() {
-        const savedCDKeys = localStorage.getItem('cdkeys');
-        if (savedCDKeys) {
-            Object.assign(cdkeys, JSON.parse(savedCDKeys));
-            for (const qq in cdkeys) {
-                currentCdkeyIndex[qq] = cdkeys[qq].length; // 更新当前序列号
+    // 导入JSON数据
+    function importJSON() {
+        const jsonInput = document.getElementById('jsonInput').value.trim();
+        try {
+            const importedData = JSON.parse(jsonInput);
+            // 清空现有数据
+            cdkeys = {};
+            currentCdkeyIndex = {};
+            for (const qq in importedData) {
+                if (importedData.hasOwnProperty(qq)) {
+                    cdkeys[qq] = importedData[qq];
+                    currentCdkeyIndex[qq] = importedData[qq].length; // 设置当前索引为已有记录的数量
+                }
             }
             updateHistory();
-            alert('CDKEY记录已加载！');
-        } else {
-            alert('没有找到保存的CDKEY记录。');
+            alert('导入成功！');
+        } catch (e) {
+            alert('导入失败，请确保输入的是有效的JSON格式。');
         }
     }
 
-    // 从文本框加载JSON
-    function loadFromInput() {
-    try {
-        const inputJson = document.getElementById('jsonInput').value;
-        Object.assign(cdkeys, JSON.parse(inputJson));
-        for (const qq in cdkeys) {
-            currentCdkeyIndex[qq] = cdkeys[qq].length; // 更新当前序列号
-        }
-        updateHistory();
-        alert('CDKEY记录已加载！');
-    } catch (e) {
-        alert('无效的JSON格式。');
-    }
+    // 导出记录为JSON
+    function exportToJSON() {
+        const filename = document.getElementById('filenameInput').value.trim();
+        const jsonData = JSON.stringify(cdkeys, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename || 'cdkeys.json';
+        link.click();
+        alert('导出成功！');
     }
 
     // 清除历史记录
     function clearHistory() {
-        for (const qq in cdkeys) {
-            delete cdkeys[qq]; // 删除所有QQ号的记录
+        if (confirm('确定要清除所有历史记录吗？')) {
+            cdkeys = {};
+            currentCdkeyIndex = {};
+            document.getElementById('history').textContent = '';
+            document.getElementById('jsonInput').value = '';
+            alert('历史记录已清除！');
         }
-        localStorage.removeItem('cdkeys'); // 清除本地存储
-        currentCdkeyIndex = {}; // 重置序列号
-        document.getElementById('cdkey').value = '';
-        document.getElementById('decryptInput').value = '';
-        document.getElementById('decryptedOutput').value = '';
-        document.getElementById('history').textContent = '';
-        alert('历史记录已清除！');
     }
 
-    // 事件监听器
-    document.getElementById('generate').addEventListener('click', generateCDKEY);
-    document.getElementById('decrypt').addEventListener('click', decryptCDKEY);
-    document.getElementById('save').addEventListener('click', saveToLocal);
-    document.getElementById('load').addEventListener('click', loadFromLocal);
-    document.getElementById('jsonInput').addEventListener('blur', loadFromInput);
-    document.getElementById('clear').addEventListener('click', clearHistory); // 绑定清除历史记录按钮
+    document.getElementById('generate').onclick = generateCDKEY;
+    document.getElementById('decrypt').onclick = decryptCDKEY;
+    document.getElementById('save').onclick = saveToLocal;
+    document.getElementById('import').onclick = importJSON;
+    document.getElementById('export').onclick = exportToJSON;
+    document.getElementById('clear').onclick = clearHistory;
 
-    // 页面加载时尝试加载记录
-    window.onload = loadFromLocal;
-
+    // 从本地存储加载历史记录
+    window.onload = function() {
+        const savedData = localStorage.getItem('cdkeys');
+        if (savedData) {
+            cdkeys = JSON.parse(savedData);
+            for (const qq in cdkeys) {
+                currentCdkeyIndex[qq] = cdkeys[qq].length;
+            }
+            updateHistory();
+        }
+    };
 </script>
 
 </body>
