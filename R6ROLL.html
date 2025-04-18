@@ -3,9 +3,9 @@
 <head>
     <title>R6随机地图抽取姬</title>
     <style>
-        /* 保持原有样式不变 */
+        /* 保持原有基础样式不变 */
         .container {
-            width: 80%;
+            width: 90%;
             margin: 20px auto;
             font-family: Arial, sans-serif;
         }
@@ -14,6 +14,14 @@
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 10px;
+        }
+        .config-group {
+            margin: 10px 0;
+        }
+        input[type="number"] {
+            padding: 8px;
+            width: 100px;
+            margin: 0 10px;
         }
         #prizePool {
             width: 100%;
@@ -33,34 +41,72 @@
         button:hover {
             background-color: #45a049;
         }
-        #result {
+        #resultsContainer {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .result-item {
             border: 3px solid #f44336;
             padding: 20px;
             font-size: 24px;
             text-align: center;
+            min-width: 200px;
             min-height: 50px;
-            margin: 20px 0;
+            margin: 10px 0;
             border-radius: 10px;
             background-color: #ffe6e6;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .result-item.final {
+            background-color: #ffcccc;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
         }
         .rolling {
-            animation: blink 0.5s infinite;
+            animation: blink 0.3s infinite;
         }
         @keyframes blink {
-            50% { opacity: 0.5; }
+            50% { opacity: 0.3; }
+        }
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .show-status {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 新增状态指示器 -->
+        <div class="status-indicator" id="status">抽取进行中...</div>
+        
         <div class="setting-box">
-            <h3>地图池设置（支持任意分隔符）</h3>
-            <textarea id="prizePool" placeholder="请输入地图，支持用逗号、空格、换行等任意方式分隔"></textarea>
-            <button onclick="setPrizePool()">确认</button>
+            <h3>地图池设置</h3>
+            <div class="config-group">
+                <label>地图池（支持任意分隔符）：</label>
+                <textarea id="prizePool" placeholder="请输入地图"></textarea>
+            </div>
+            <div class="config-group">
+                <label>抽取数量：</label>
+                <input type="number" id="drawCount" min="1" value="1">
+                <button onclick="setPrizePool()">确认设置</button>
+            </div>
         </div>
 
         <button onclick="startLottery()" id="lotteryBtn">开始哒！</button>
-        <div id="result"></div>
+        <div id="resultsContainer"></div>
     </div>
 
     <script>
@@ -69,22 +115,34 @@
 
         function setPrizePool() {
             const input = document.getElementById('prizePool').value;
-            // 使用正则表达式匹配各种分隔符（包括中文逗号、英文逗号、顿号、换行符、空格）
+            const drawCount = document.getElementById('drawCount');
+            
             prizes = input.split(/[\s,，、\n]+/)
                           .map(item => item.trim())
                           .filter(item => item !== '');
             
             if(prizes.length === 0) {
-                alert('未检测到有效地图，请重新输入！');
+                showStatus('请至少输入一张地图！', 'error');
                 return;
             }
             
-            alert(`成功设置 ${prizes.length} 张地图\n示例：${prizes.slice(0, 3).join(', ')}...`);
+            drawCount.max = prizes.length;
+            if(parseInt(drawCount.value) > prizes.length) {
+                drawCount.value = prizes.length;
+            }
+            
+            showStatus(`已加载 ${prizes.length} 张地图`, 'success');
         }
 
         function startLottery() {
             if (prizes.length === 0) {
-                alert('请先设置地图池！');
+                showStatus('请先设置地图池！', 'error');
+                return;
+            }
+
+            const drawCount = parseInt(document.getElementById('drawCount').value);
+            if(drawCount < 1 || drawCount > prizes.length) {
+                showStatus('抽取进行中！', 'error');
                 return;
             }
 
@@ -92,38 +150,75 @@
 
             isRolling = true;
             const btn = document.getElementById('lotteryBtn');
-            const resultDiv = document.getElementById('result');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const statusDiv = document.getElementById('status');
+            
+            // 初始化界面
+            resultsContainer.innerHTML = Array(drawCount)
+                .fill('<div class="result-item rolling">?</div>')
+                .join('');
+            statusDiv.textContent = '抽取进行中...';
+            statusDiv.classList.add('show-status');
             btn.disabled = true;
-            resultDiv.classList.add('rolling');
 
             let start = Date.now();
             const duration = 5000;
             let lastUpdate = 0;
+            let tempPrizes = [...prizes];
 
             function update() {
                 const now = Date.now();
                 const progress = now - start;
 
-                // 随机切换奖品（速度逐渐变慢）
-                if (now - lastUpdate > 100/(1 + progress/duration)) {
-                    resultDiv.textContent = prizes[Math.floor(Math.random() * prizes.length)];
+                // 更新动画
+                const speedFactor = 0.3 + (progress/duration)*0.7;
+                if (now - lastUpdate > 50 * speedFactor) {
+                    document.querySelectorAll('.result-item').forEach(div => {
+                        const randomIndex = Math.floor(Math.random() * tempPrizes.length);
+                        div.textContent = tempPrizes[randomIndex];
+                        div.style.opacity = Math.random()*0.5 + 0.5;
+                    });
                     lastUpdate = now;
                 }
 
                 if (progress < duration) {
                     requestAnimationFrame(update);
                 } else {
-                    // 最终结果
-                    const final = prizes[Math.floor(Math.random() * prizes.length)];
-                    resultDiv.textContent = final;
-                    resultDiv.classList.remove('rolling');
+                    // 生成最终结果
+                    const finalResults = [];
+                    const availablePrizes = [...prizes];
+                    
+                    for(let i = 0; i < drawCount; i++) {
+                        if(availablePrizes.length === 0) break;
+                        const randomIndex = Math.floor(Math.random() * availablePrizes.length);
+                        finalResults.push(availablePrizes.splice(randomIndex, 1)[0]);
+                    }
+
+                    // 更新显示
+                    document.querySelectorAll('.result-item').forEach((div, index) => {
+                        div.textContent = finalResults[index] || '无可用地图';
+                        div.style.opacity = 1;
+                        div.classList.remove('rolling');
+                        div.classList.add('final');
+                    });
+
+                    // 状态更新
+                    statusDiv.textContent = `已抽取 ${finalResults.length} 张地图`;
+                    setTimeout(() => statusDiv.classList.remove('show-status'), 2000);
                     btn.disabled = false;
                     isRolling = false;
-                    alert(`🎉 结果为：${final} 🎉`);
                 }
             }
 
             requestAnimationFrame(update);
+        }
+
+        // 状态提示函数
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-indicator show-status ${type}`;
+            setTimeout(() => statusDiv.classList.remove('show-status'), 2000);
         }
     </script>
 </body>
