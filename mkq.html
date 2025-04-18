@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喵少的免口券生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4A90E2;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="text"], textarea {
+            width: calc(100% - 12px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4A90E2;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #357ABD;
+        }
+        h2 {
+            margin-top: 20px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 5px;
+        }
+        #history {
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    #history {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto; /* 允许垂直滚动 */
+        font-size: 12px; /* 缩小字体大小 */
+    }
+
+    .history-entry {
+        margin-bottom: 5px; /* 每条记录之间的间距 */
+        white-space: nowrap; /* 防止内容换行 */
+    }
+    .label-text {
+        color: red; /* 设置标签文本颜色为红色 */
+    }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>喵少的免口券生成器 v0.1.9.1</h1>
+	    <div class="announcement">
+        <button class="toggle-button" onclick="toggleAnnouncement()">公告</button>
+        <div id="announcement-content" class="announcement-content" style="display: none;">
+            <p>欢迎使用喵少的免口券生成器！</p>
+            <ul>
+                <li>v0.1.9.1_1.修正历史记录的“随机字符串”刷新后乱跳问题</li>
+                <li>v0.1.9.1_2.增加公告栏</li>
+                <li>v0.1.9.0_1.重置了CDKEY加密方法</li>
+				<li>v0.1.9.0_2.修正历史记录中"CDKEY"显示不完整的问题</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnnouncement() {
+            const content = document.getElementById('announcement-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+    </script>
+
+    <label for="qqInput">QQ号:</label>
+    <input type="text" id="qqInput" placeholder="输入QQ号">
+
+    <label for="timeInput">禁言时间（分钟）:</label>
+    <input type="text" id="timeInput" placeholder="输入禁言时间">
+
+    <button id="generate">生成CDKEY</button>
+    <input type="text" id="cdkey" placeholder="生成的CDKEY" readonly>
+
+    <button id="copy">复制CDKEY</button>
+
+    <h2>解密免口券CDKEY</h2>
+    <input type="text" id="decryptInput" placeholder="输入CDKEY解密">
+    <button id="decrypt">解密</button>
+    <input type="text" id="decryptedOutput" placeholder="解密结果" readonly>
+
+    <h2>保存和加载记录</h2>
+    <textarea id="jsonInput" rows="5" placeholder="输入JSON数据"></textarea>
+    <button id="save">保存到本地</button>
+    <button id="import">导入JSON数据</button>
+    <button id="export">导出记录为JSON</button>
+    <input type="text" id="filenameInput" placeholder="输入文件名" value="cdkeys.json">
+
+    <button id="clear">清除历史记录</button>
+
+    <h2>历史记录</h2>
+    <div id="history"></div>
+</div>
+
+<script>
+    let cdkeys = {}; // 修改为 let 以允许更新
+    let currentCdkeyIndex = {};
+
+    // 简单加密函数
+    function encrypt(input) {
+        return btoa(unescape(encodeURIComponent(input)));
+    }
+
+    // 解密函数
+    function decrypt(input) {
+        return decodeURIComponent(escape(atob(input)));
+    }
+
+    // 生成随机数函数，8到16位
+    function generateRandomString(length) {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charLength));
+        }
+        return result;
+    }
+
+// 生成CDKEY的函数
+function generateCDKEY() {
+    const qq = document.getElementById('qqInput').value.trim();
+    const time = document.getElementById('timeInput').value.trim();
+    
+    if (!qq || !time) {
+        alert('请填写QQ号和禁言时间！');
+        return;
+    }
+
+    // 生成随机长度的字符串，长度在8到16之间
+    const randomLength = Math.floor(Math.random() * 9) + 8; // 生成8到16之间的随机数
+    const randomString = generateRandomString(randomLength);
+    
+    // 构建CDKEY
+    const cdkey = encrypt(`${qq}-${time}-${randomString}`);
+    document.getElementById('cdkey').value = cdkey;
+
+    // 记录历史
+    if (!cdkeys[qq]) {
+        cdkeys[qq] = [];
+    }
+    cdkeys[qq].push({ cdkey: cdkey, time: time, randomString: randomString }); // 新增 randomString
+    updateHistory();
+}
+
+// 更新历史记录
+function updateHistory() {
+    const historyDiv = document.getElementById('history');
+    historyDiv.innerHTML = ''; // 清空历史记录
+    for (const qq in cdkeys) {
+        cdkeys[qq].forEach(entry => {
+            const shortCdkey = entry.cdkey.substring(0, 100); // 只显示前100个字符
+            const entryDiv = document.createElement('div'); // 创建新的 div 元素
+            entryDiv.className = 'history-entry'; // 添加类名
+            entryDiv.innerHTML = `
+                <span class="label-text">QQ:</span> ${qq}, 
+                <span class="label-text">禁言时间（分钟）:</span> ${entry.time}, 
+                <span class="label-text">随机字符串:</span> ${entry.randomString}, 
+                <span class="label-text">CDKEY:</span> ${shortCdkey}
+            `; // 设置 HTML 内容
+            historyDiv.appendChild(entryDiv); // 将新元素添加到历史记录中
+        });
+    }
+    localStorage.setItem('cdkeys', JSON.stringify(cdkeys)); // 保存到本地存储
+}
+
+    // 复制CDKEY到剪贴板
+    document.getElementById('copy').addEventListener('click', () => {
+        const cdkey = document.getElementById('cdkey').value;
+        navigator.clipboard.writeText(cdkey).then(() => {
+            alert('CDKEY已复制到剪贴板！');
+        });
+    });
+
+    // 解密CDKEY
+    document.getElementById('decrypt').addEventListener('click', () => {
+        const cdkey = document.getElementById('decryptInput').value.trim();
+        if (!cdkey) {
+            alert('请输入CDKEY进行解密！');
+            return;
+        }
+        const decrypted = decrypt(cdkey);
+        document.getElementById('decryptedOutput').value = decrypted;
+    });
+
+    // 保存记录到本地存储
+    document.getElementById('save').onclick = saveToLocal;
+    function saveToLocal() {
+        localStorage.setItem('cdkeys', JSON.stringify(cdkeys));
+        alert('CDKEY记录已保存！');
+    }
+
+    // 导入JSON数据
+    document.getElementById('import').addEventListener('click', () => {
+        const jsonData = document.getElementById('jsonInput').value.trim();
+        if (!jsonData) {
+            alert('请输入有效的JSON数据！');
+            return;
+        }
+        try {
+            const importedData = JSON.parse(jsonData);
+            cdkeys = importedData;
+            updateHistory();
+            alert('导入成功！');
+        } catch (e) {
+            alert('导入失败，请检查JSON格式！');
+        }
+    });
+
+    // 导出记录为JSON
+	    document.getElementById('export').onclick = exportToJSON;
+    function exportToJSON() {
+        const filename = document.getElementById('filenameInput').value.trim();
+        const jsonData = JSON.stringify(cdkeys, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename || 'cdkeys.json';
+        link.click();
+        alert('导出成功！');
+    }
+
+    // 清除历史记录
+    document.getElementById('clear').addEventListener('click', () => {
+        cdkeys = {};
+        updateHistory();
+        alert('历史记录已清除！');
+        localStorage.setItem('cdkeys', JSON.stringify(cdkeys));
+    });
+
+    // 生成CDKEY按钮事件
+    document.getElementById('generate').addEventListener('click', generateCDKEY);
+	
+    // 从本地存储加载历史记录
+    window.onload = function() {
+        const savedData = localStorage.getItem('cdkeys');
+        if (savedData) {
+            cdkeys = JSON.parse(savedData);
+            for (const qq in cdkeys) {
+                currentCdkeyIndex[qq] = cdkeys[qq].length;
+            }
+            updateHistory();
+        }
+    };
+</script>
+
+</body>
+</html>
+
