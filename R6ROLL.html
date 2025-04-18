@@ -3,7 +3,6 @@
 <head>
     <title>R6随机地图抽取姬</title>
     <style>
-        /* 保持原有基础样式不变 */
         .container {
             width: 90%;
             margin: 20px auto;
@@ -14,6 +13,13 @@
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 10px;
+        }
+        .prize-pool-box {
+            border: 2px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background-color: #e3f2fd;
         }
         .config-group {
             margin: 10px 0;
@@ -71,6 +77,29 @@
         @keyframes blink {
             50% { opacity: 0.3; }
         }
+        #currentPool {
+            list-style: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        #currentPool li {
+            padding: 5px 10px;
+            margin: 3px 0;
+            background-color: #fff;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-btn {
+            background-color: #f44336;
+            padding: 3px 8px;
+            font-size: 12px;
+        }
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
         .status-indicator {
             position: fixed;
             top: 20px;
@@ -89,13 +118,12 @@
 </head>
 <body>
     <div class="container">
-        <!-- 新增状态指示器 -->
-        <div class="status-indicator" id="status">抽取进行中...</div>
+        <div class="status-indicator" id="status"></div>
         
         <div class="setting-box">
             <h3>地图池设置</h3>
             <div class="config-group">
-                <label>地图池（支持任意分隔符）：</label>
+                <label>地图池内容（支持任意分隔符）：</label>
                 <textarea id="prizePool" placeholder="请输入地图"></textarea>
             </div>
             <div class="config-group">
@@ -105,15 +133,39 @@
             </div>
         </div>
 
-        <button onclick="startLottery()" id="lotteryBtn">开始哒！</button>
+        <div class="prize-pool-box">
+            <h3>已加载地图（共<span id="poolCount">0</span>张）</h3>
+            <ul id="currentPool">
+                <li class="empty-tip">暂无加载的地图</li>
+            </ul>
+            <button class="clear-btn" onclick="clearPool()">清空地图池</button>
+        </div>
+
+        <button onclick="startLottery()" id="lotteryBtn">开始抽取</button>
         <div id="resultsContainer"></div>
     </div>
 
     <script>
+        const STORAGE_KEY = 'lotteryData';
         let prizes = [];
         let isRolling = false;
 
-        function setPrizePool() {
+        // 初始化加载保存的数据
+        window.addEventListener('load', () => {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const { prizes: savedPrizes, drawCount } = JSON.parse(savedData);
+                    document.getElementById('prizePool').value = savedPrizes.join('\n');
+                    document.getElementById('drawCount').value = drawCount || 1;
+                    setPrizePool(true);
+                } catch (e) {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            }
+        });
+
+        function setPrizePool(silent = false) {
             const input = document.getElementById('prizePool').value;
             const drawCount = document.getElementById('drawCount');
             
@@ -122,7 +174,8 @@
                           .filter(item => item !== '');
             
             if(prizes.length === 0) {
-                showStatus('请至少输入一张地图！', 'error');
+                showStatus('请至少输入一张有效地图！', 'error');
+                updatePoolDisplay();
                 return;
             }
             
@@ -130,8 +183,11 @@
             if(parseInt(drawCount.value) > prizes.length) {
                 drawCount.value = prizes.length;
             }
+
+            saveToStorage();
+            updatePoolDisplay();
             
-            showStatus(`已加载 ${prizes.length} 张地图`, 'success');
+            if(!silent) showStatus(`已加载 ${prizes.length} 张地图`, 'success');
         }
 
         function startLottery() {
@@ -142,7 +198,7 @@
 
             const drawCount = parseInt(document.getElementById('drawCount').value);
             if(drawCount < 1 || drawCount > prizes.length) {
-                showStatus('抽取进行中！', 'error');
+                showStatus('抽取数量不合法！', 'error');
                 return;
             }
 
@@ -153,7 +209,6 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const statusDiv = document.getElementById('status');
             
-            // 初始化界面
             resultsContainer.innerHTML = Array(drawCount)
                 .fill('<div class="result-item rolling">?</div>')
                 .join('');
@@ -170,7 +225,6 @@
                 const now = Date.now();
                 const progress = now - start;
 
-                // 更新动画
                 const speedFactor = 0.3 + (progress/duration)*0.7;
                 if (now - lastUpdate > 50 * speedFactor) {
                     document.querySelectorAll('.result-item').forEach(div => {
@@ -184,7 +238,6 @@
                 if (progress < duration) {
                     requestAnimationFrame(update);
                 } else {
-                    // 生成最终结果
                     const finalResults = [];
                     const availablePrizes = [...prizes];
                     
@@ -194,7 +247,6 @@
                         finalResults.push(availablePrizes.splice(randomIndex, 1)[0]);
                     }
 
-                    // 更新显示
                     document.querySelectorAll('.result-item').forEach((div, index) => {
                         div.textContent = finalResults[index] || '无可用地图';
                         div.style.opacity = 1;
@@ -202,7 +254,6 @@
                         div.classList.add('final');
                     });
 
-                    // 状态更新
                     statusDiv.textContent = `已抽取 ${finalResults.length} 张地图`;
                     setTimeout(() => statusDiv.classList.remove('show-status'), 2000);
                     btn.disabled = false;
@@ -213,7 +264,38 @@
             requestAnimationFrame(update);
         }
 
-        // 状态提示函数
+        function updatePoolDisplay() {
+            const poolList = document.getElementById('currentPool');
+            const countSpan = document.getElementById('poolCount');
+            
+            poolList.innerHTML = prizes.length > 0 
+                ? prizes.map((item, index) => `
+                    <li>
+                        <span>${index + 1}. ${item}</span>
+                    </li>
+                `).join('')
+                : '<li class="empty-tip">暂无加载的地图</li>';
+            
+            countSpan.textContent = prizes.length;
+        }
+
+        function clearPool() {
+            prizes = [];
+            document.getElementById('prizePool').value = '';
+            document.getElementById('drawCount').value = 1;
+            updatePoolDisplay();
+            localStorage.removeItem(STORAGE_KEY);
+            showStatus('已清空地图池', 'success');
+        }
+
+        function saveToStorage() {
+            const storageData = {
+                prizes: prizes,
+                drawCount: document.getElementById('drawCount').value
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
+        }
+
         function showStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = message;
