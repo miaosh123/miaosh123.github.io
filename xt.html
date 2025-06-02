@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>血糖记录器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+  <style>
+    :root {
+      --primary-color: #4e73df;
+      --success-color: #1cc88a;
+      --danger-color: #e74a3b;
+      --warning-color: #f6c23e;
+      --light-bg: #f8f9fc;
+    }
+    
+    body {
+      background-color: #f5f7fb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .container {
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .app-header {
+      background: linear-gradient(135deg, var(--primary-color), #2a48a3);
+      color: white;
+      padding: 25px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 30px;
+    }
+    
+    .app-title {
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .app-subtitle {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.1);
+      border: none;
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid #e3e6f0;
+      font-weight: 600;
+      padding: 15px 20px;
+      border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .table thead th {
+      border-top: 0;
+      border-bottom-width: 2px;
+      font-weight: 600;
+      color: #4e73df;
+    }
+    
+    .table tbody td {
+      vertical-align: middle;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      padding: 8px 20px;
+      font-weight: 600;
+    }
+    
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+    
+    .btn-export {
+      background-color: #36b9cc;
+      border-color: #36b9cc;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .delete-btn {
+      color: var(--danger-color);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .delete-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .record-item {
+      transition: all 0.3s;
+    }
+    
+    .record-item:hover {
+      background-color: #f8f9fc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    
+    .input-group-text {
+      background-color: #eaecf4;
+    }
+    
+    .stats-card {
+      text-align: center;
+      border-left: 4px solid;
+    }
+    
+    .stats-card.avg {
+      border-left-color: var(--primary-color);
+    }
+    
+    .stats-card.min {
+      border-left-color: var(--success-color);
+    }
+    
+    .stats-card.max {
+      border-left-color: var(--danger-color);
+    }
+    
+    .stats-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .stats-label {
+      font-size: 0.85rem;
+      color: #5a5c69;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    
+    .datepicker table tr td.today {
+      background-color: var(--primary-color) !important;
+      background-image: none !important;
+      color: white !important;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-top: 30px;
+    }
+    
+    .export-section {
+      background: var(--light-bg);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-header text-center">
+      <h1 class="app-title"><i class="fas fa-heartbeat mr-2"></i>血糖记录器</h1>
+      <p class="app-subtitle">记录、追踪和管理您的血糖水平</p>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-plus-circle mr-2"></i>添加新记录
+          </div>
+          <div class="card-body">
+            <form class="mb-4">
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label for="date"><i class="far fa-calendar-alt mr-1"></i>日期：</label>
+                  <div class="input-group date">
+                    <input type="text" class="form-control" id="date" name="date" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="time"><i class="far fa-clock mr-1"></i>时间：</label>
+                  <input type="time" class="form-control" id="time" name="time" required>
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="level"><i class="fas fa-tint mr-1"></i>血糖值：</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="level" name="level" step="0.1" min="0" max="50" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text">mmol/L</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>添加记录
+              </button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-history mr-2"></i>血糖记录历史
+            </div>
+            <button id="exportBtn" class="btn btn-export">
+              <i class="fas fa-download mr-1"></i>导出数据
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>日期</th>
+                    <th>时间</th>
+                    <th>血糖值 (mmol/L)</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 记录将在这里动态添加 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="empty-state d-none" id="emptyState">
+              <i class="far fa-clipboard"></i>
+              <h4>暂无血糖记录</h4>
+              <p>请添加您的第一条血糖记录</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-chart-line mr-2"></i>血糖统计
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-md-12 mb-4">
+                <div class="stats-card avg p-3">
+                  <div class="stats-value" id="avgValue">--</div>
+                  <div class="stats-label">平均血糖值</div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div class="stats-card min p-3">
+                  <div class="stats-value" id="minValue">--</div>
+                  <div class="stats-label">最低血糖值</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="stats-card max p-3">
+                  <div class="stats-value" id="maxValue">--</div>
+                  <div class="stats-label">最高血糖值</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <i class="fas fa-info-circle mr-2"></i>血糖范围参考
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                正常空腹血糖
+                <span class="badge badge-success badge-pill">3.9 - 6.1 mmol/L</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                正常餐后血糖
+                <span class="badge badge-success badge-pill">≤ 7.8 mmol/L</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                糖尿病前期
+                <span class="badge badge-warning badge-pill">6.1 - 7.0 mmol/L</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                糖尿病
+                <span class="badge badge-danger badge-pill">≥ 7.0 mmol/L</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="export-section">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h5><i class="fas fa-file-export mr-2"></i>导出数据</h5>
+          <p class="mb-0">将您的血糖记录导出为CSV文件，可在Excel或其他电子表格软件中打开</p>
+        </div>
+        <div class="col-md-4 text-right">
+          <button id="exportBtn2" class="btn btn-export btn-lg">
+            <i class="fas fa-download mr-2"></i>导出所有数据
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <p>血糖记录器 &copy; 2025 | 健康管理工具</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+  <script>
+    $(function() {
+      // 初始化 indexedDB 数据库
+      var db;
+      var request = window.indexedDB.open('blood-sugar', 2);
+
+      request.onerror = function(event) {
+        showAlert('danger', '无法打开数据库！请检查浏览器支持或存储空间。');
+      };
+
+      request.onsuccess = function(event) {
+        db = request.result;
+        showRecords();
+        updateStats();
+      };
+
+      request.onupgradeneeded = function(event) {
+        var db = event.target.result;
+        if (!db.objectStoreNames.contains('records')) {
+          var objectStore = db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+          objectStore.createIndex('date', 'date', { unique: false });
+          objectStore.createIndex('time', 'time', { unique: false });
+          objectStore.createIndex('level', 'level', { unique: false });
+        }
+      };
+
+      function addRecord(record) {
+        var transaction = db.transaction(['records'], 'readwrite');
+        var objectStore = transaction.objectStore('records');
+        var request = objectStore.add(record);
+
+        request.onerror = function(event) {
+          showAlert('danger', '添加记录失败！请重试。');
+        };
+
+        request.onsuccess = function(event) {
+          showRecords();
+          updateStats();
+          showAlert('success', '记录添加成功！');
+          $('#date').val('').focus();
+          $('#time').val('');
+          $('#level').val('');
+        };
+      }
+
+      function deleteRecord(id) {
+        var transaction = db.transaction(['records'], 'readwrite');
+        var objectStore = transaction.objectStore('records');
+        var request = objectStore.delete(id);
+
+        request.onerror = function(event) {
+          showAlert('danger', '删除记录失败！');
+        };
+
+        request.onsuccess = function(event) {
+          showRecords();
+          updateStats();
+          showAlert('success', '记录已删除！');
+        };
+      }
+
+      function showRecords() {
+        var transaction = db.transaction(['records'], 'readonly');
+        var objectStore = transaction.objectStore('records');
+        var index = objectStore.index('date');
+        var tbody = $('tbody').empty();
+
+        // 检查是否有记录
+        var countRequest = objectStore.count();
+        countRequest.onsuccess = function() {
+          if (countRequest.result === 0) {
+            $('#emptyState').removeClass('d-none');
+            return;
+          }
+          $('#emptyState').addClass('d-none');
+        };
+
+        index.openCursor(null, 'prev').onsuccess = function(event) {
+          var cursor = event.target.result;
+          if (cursor) {
+            var record = cursor.value;
+            
+            // 确定血糖状态
+            var statusClass = '';
+            var statusText = '';
+            if (record.level < 3.9) {
+              statusClass = 'danger';
+              statusText = '低血糖';
+            } else if (record.level >= 3.9 && record.level <= 6.1) {
+              statusClass = 'success';
+              statusText = '正常';
+            } else if (record.level > 6.1 && record.level < 7.0) {
+              statusClass = 'warning';
+              statusText = '偏高';
+            } else {
+              statusClass = 'danger';
+              statusText = '高血糖';
+            }
+            
+            var tr = $('<tr>').addClass('record-item').append(
+              $('<td>').text(record.date),
+              $('<td>').text(record.time),
+              $('<td>').html('<strong>' + record.level + '</strong> mmol/L'),
+              $('<td>').html('<span class="badge badge-' + statusClass + '">' + statusText + '</span>'),
+              $('<td>').append($('<a>').attr('href', '#').addClass('delete-btn').html('<i class="fas fa-trash"></i>'))
+            ).appendTo(tbody);
+
+            tr.find('a.delete-btn').click(function(event) {
+              event.preventDefault();
+              if (confirm('确定要删除这条记录吗？')) {
+                deleteRecord(record.id);
+              }
+            });
+
+            cursor.continue();
+          }
+        };
+      }
+      
+      function updateStats() {
+        var transaction = db.transaction(['records'], 'readonly');
+        var objectStore = transaction.objectStore('records');
+        var request = objectStore.getAll();
+        
+        request.onsuccess = function(event) {
+          var records = event.target.result;
+          if (records.length === 0) {
+            $('#avgValue').text('--');
+            $('#minValue').text('--');
+            $('#maxValue').text('--');
+            return;
+          }
+          
+          var total = 0;
+          var min = records[0].level;
+          var max = records[0].level;
+          
+          records.forEach(function(record) {
+            total += record.level;
+            if (record.level < min) min = record.level;
+            if (record.level > max) max = record.level;
+          });
+          
+          var avg = total / records.length;
+          
+          $('#avgValue').text(avg.toFixed(1));
+          $('#minValue').text(min.toFixed(1));
+          $('#maxValue').text(max.toFixed(1));
+        };
+      }
+      
+      function exportData() {
+        var transaction = db.transaction(['records'], 'readonly');
+        var objectStore = transaction.objectStore('records');
+        var request = objectStore.getAll();
+        
+        request.onsuccess = function(event) {
+          var records = event.target.result;
+          if (records.length === 0) {
+            showAlert('warning', '没有记录可导出！');
+            return;
+          }
+          
+          // 创建CSV内容
+          var csvContent = "日期,时间,血糖值(mmol/L),状态\n";
+          
+          records.forEach(function(record) {
+            // 确定血糖状态
+            var status = '';
+            if (record.level < 3.9) {
+              status = '低血糖';
+            } else if (record.level >= 3.9 && record.level <= 6.1) {
+              status = '正常';
+            } else if (record.level > 6.1 && record.level < 7.0) {
+              status = '偏高';
+            } else {
+              status = '高血糖';
+            }
+            
+            csvContent += `"${record.date}","${record.time}",${record.level},"${status}"\n`;
+          });
+          
+          // 创建Blob对象并下载
+          var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement("a");
+          var dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+          
+          link.setAttribute("href", url);
+          link.setAttribute("download", `血糖记录_${dateStr}.csv`);
+          link.style.visibility = 'hidden';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          showAlert('success', '数据导出成功！');
+        };
+      }
+      
+      function showAlert(type, message) {
+        // 移除现有的提示
+        $('.alert').remove();
+        
+        var alertClass = 'alert-' + type;
+        var alertHtml = `
+          <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        `;
+        
+        $('.container').prepend(alertHtml);
+        
+        // 5秒后自动关闭
+        setTimeout(function() {
+          $('.alert').alert('close');
+        }, 5000);
+      }
+
+      // 检查 indexedDB 是否可用
+      if (!window.indexedDB) {
+        showAlert('danger', '您的浏览器不支持 indexedDB！无法使用本地存储功能。');
+        return;
+      }
+
+      // 处理表单提交事件
+      $('form').submit(function(event) {
+        event.preventDefault();
+
+        var date = $('#date').val();
+        var time = $('#time').val();
+        var level = parseFloat($('#level').val());
+
+        if (!date) {
+          showAlert('danger', '请选择日期！');
+          return;
+        }
+        
+        if (!time) {
+          showAlert('danger', '请选择时间！');
+          return;
+        }
+        
+        if (isNaN(level) {
+          showAlert('danger', '请输入有效的血糖值！');
+          return;
+        }
+        
+        if (level < 0 || level > 50) {
+          showAlert('danger', '血糖值必须在 0 到 50 mmol/L 之间！');
+          return;
+        }
+
+        addRecord({ date: date, time: time, level: level });
+      });
+      
+      // 绑定导出按钮事件
+      $('#exportBtn, #exportBtn2').click(function() {
+        exportData();
+      });
+      
+      // 初始化日期选择器
+      $('#date').datepicker({
+        language: 'zh-CN',
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd',
+        endDate: new Date()
+      });
+      
+      // 设置今天的日期为默认值
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' + 
+                    ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
+                    ('0' + today.getDate()).slice(-2);
+      $('#date').val(todayStr);
+      
+      // 设置当前时间为默认值
+      var now = new Date();
+      var timeStr = ('0' + now.getHours()).slice(-2) + ':' + 
+                   ('0' + now.getMinutes()).slice(-2);
+      $('#time').val(timeStr);
+      
+      // 聚焦到血糖值输入框
+      $('#level').focus();
+    });
+  </script>
+</body>
+</html>
