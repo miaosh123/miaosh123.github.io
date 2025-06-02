@@ -186,6 +186,31 @@
       padding: 15px;
       margin-top: 20px;
     }
+    
+    /* 移动设备优化 */
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 15px 0;
+      }
+      .app-title {
+        font-size: 1.5rem;
+      }
+      .stats-card {
+        margin-bottom: 15px;
+      }
+      .stats-value {
+        font-size: 1.5rem;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .export-section .col-md-8 {
+        margin-bottom: 15px;
+      }
+      .export-section .col-md-4 {
+        text-align: center !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -343,7 +368,7 @@
   
   <footer>
     <div class="container">
-      <p>血糖记录器 &copy; 2025 | 健康管理工具</p>
+      <p>血糖记录器 &copy; 2023 | 健康管理工具</p>
     </div>
   </footer>
 
@@ -496,6 +521,7 @@
           
           var avg = total / records.length;
           
+          // 确保显示一位小数
           $('#avgValue').text(avg.toFixed(1));
           $('#minValue').text(min.toFixed(1));
           $('#maxValue').text(max.toFixed(1));
@@ -537,7 +563,14 @@
           var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
           var url = URL.createObjectURL(blob);
           var link = document.createElement("a");
-          var dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+          var now = new Date();
+          
+          // 生成更易读的文件名：血糖记录_年月日_时分.csv
+          var dateStr = now.getFullYear() + '年' + 
+                        ('0' + (now.getMonth() + 1)).slice(-2) + '月' +
+                        ('0' + now.getDate()).slice(-2) + '日_' +
+                        ('0' + now.getHours()).slice(-2) + '时' +
+                        ('0' + now.getMinutes()).slice(-2) + '分';
           
           link.setAttribute("href", url);
           link.setAttribute("download", `血糖记录_${dateStr}.csv`);
@@ -597,7 +630,7 @@
           return;
         }
         
-        if (isNaN(level) {
+        if (isNaN(level)) {
           showAlert('danger', '请输入有效的血糖值！');
           return;
         }
@@ -615,7 +648,7 @@
         exportData();
       });
       
-      // 初始化日期选择器
+      // 初始化日期选择器（使用中文）
       $('#date').datepicker({
         language: 'zh-CN',
         autoclose: true,
@@ -624,12 +657,8 @@
         endDate: new Date()
       });
       
-      // 设置今天的日期为默认值
-      var today = new Date();
-      var todayStr = today.getFullYear() + '-' + 
-                    ('0' + (today.getMonth() + 1)).slice(-2) + '-' + 
-                    ('0' + today.getDate()).slice(-2);
-      $('#date').val(todayStr);
+      // 设置今天的日期为默认值（使用日期选择器API）
+      $('#date').datepicker('update', new Date());
       
       // 设置当前时间为默认值
       var now = new Date();
