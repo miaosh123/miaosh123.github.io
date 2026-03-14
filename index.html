@@ -104,13 +104,14 @@
             list-style: none;
         }
         
+        /* 核心修复1：给一级菜单项加相对定位 + 扩大hover区域 */
         .link-list li {
             margin-bottom: 12px;
             padding-left: 5px;
             border-left: 3px solid transparent;
             transition: all 0.2s;
-            /* 新增：相对定位，用于下拉菜单绝对定位 */
-            position: relative;
+            position: relative; /* 二级菜单绝对定位的基准 */
+            padding-bottom: 4px; /* 消除一级按钮和二级菜单的间隙 */
         }
         
         .link-list li:hover {
@@ -140,42 +141,47 @@
             color: #718096;
         }
 
-        /* 新增：下拉菜单样式 */
+        /* 二级菜单核心样式（修复hover消失问题） */
         .dropdown-trigger {
             cursor: pointer;
+            display: block; /* 确保触发区域是整块 */
         }
         .dropdown-menu {
             display: none;
             position: absolute;
-            left: 30px;
-            top: 0;
+            top: 100%; /* 紧贴一级按钮底部 */
+            left: 0;
+            list-style: none;
+            margin: 0; /* 消除默认margin导致的间隙 */
+            padding: 8px 0; /* 仅上下内边距，左右无 */
             background: white;
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 1px solid #edf2f7;
-            min-width: 200px;
-            z-index: 100;
-            padding: 8px 0;
+            min-width: 220px;
+            z-index: 9999; /* 确保层级足够 */
+            /* 核心修复2：取消margin-top，避免间隙导致hover中断 */
         }
+        /* 核心修复3：li hover时始终显示二级菜单（直到鼠标离开整个li） */
         .link-list li:hover .dropdown-menu {
             display: block;
         }
+        /* 二级菜单项样式 */
         .dropdown-menu li {
-            margin: 0;
-            padding: 0;
-            border-left: none;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-left: none !important;
+            padding-left: 0 !important; /* 重置继承的padding */
         }
         .dropdown-menu li a {
-            padding: 8px 16px;
+            padding: 8px 16px !important;
             width: 100%;
             box-sizing: border-box;
-        }
-        .dropdown-menu li:hover {
-            border-left: none;
-            padding-left: 0;
+            border-left: none !important;
         }
         .dropdown-menu li a:hover {
             background: #ebf4ff;
+            padding-left: 16px !important; /* 取消左移，避免抖动 */
         }
         
         footer {
@@ -200,10 +206,10 @@
             .links-container {
                 grid-template-columns: 1fr;
             }
-            /* 适配移动端下拉菜单 */
             .dropdown-menu {
                 left: 0;
                 top: 100%;
+                min-width: 200px;
             }
         }
         
@@ -238,9 +244,13 @@
                         <li><a href="R6ROLL.html" target="_blank"><i class="fas fa-chevron-right"></i> R6随机地图抽取姬</a></li>
                         <li><a href="xt.html" target="_blank"><i class="fas fa-chevron-right"></i> 血糖记录器</a></li>
                         <li><a href="wtbt/wtbt.html" target="_blank"><i class="fas fa-chevron-right"></i> 洗种器</a></li>
-                        <!-- 核心修改：大菠萝1启动器改为下拉菜单 -->
+                        <!-- 一级菜单（带二级下拉） -->
                         <li>
-                            <a class="dropdown-trigger" href="javascript:void(0)"><i class="fas fa-chevron-right"></i> 大菠萝1启动器 <i class="fas fa-caret-down" style="font-size: 0.8rem;"></i></a>
+                            <a class="dropdown-trigger" href="javascript:void(0)">
+                                <i class="fas fa-chevron-right"></i> 大菠萝1启动器 
+                                <i class="fas fa-caret-down" style="font-size: 0.8rem;"></i>
+                            </a>
+                            <!-- 二级下拉菜单 -->
                             <ul class="dropdown-menu">
                                 <li><a href="diabloweb/index.html" target="_blank"><i class="fas fa-play"></i> 启动</a></li>
                                 <li><a href="https://pan.xunlei.com/s/VOnewUTQJkSUpqQP8q6MvQ_fA1?pwd=uw7d#" target="_blank"><i class="fas fa-download"></i> 下载原版核心文件</a></li>
@@ -248,12 +258,11 @@
                         </li>
                     </ul>
                 </div>
-                
             </div>
         </div>
         
         <footer>
-            <p>© 2025 喵少工具箱索引 | 最后更新: 2025年6月2日</p>
+            <p>© 2025 喵少工具箱索引 | 最后更新: 2026年3月14日</p>
         </footer>
     </div>
 </body>
