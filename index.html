@@ -109,6 +109,8 @@
             padding-left: 5px;
             border-left: 3px solid transparent;
             transition: all 0.2s;
+            /* 新增：相对定位，用于下拉菜单绝对定位 */
+            position: relative;
         }
         
         .link-list li:hover {
@@ -137,6 +139,44 @@
             text-align: center;
             color: #718096;
         }
+
+        /* 新增：下拉菜单样式 */
+        .dropdown-trigger {
+            cursor: pointer;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 30px;
+            top: 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #edf2f7;
+            min-width: 200px;
+            z-index: 100;
+            padding: 8px 0;
+        }
+        .link-list li:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu li {
+            margin: 0;
+            padding: 0;
+            border-left: none;
+        }
+        .dropdown-menu li a {
+            padding: 8px 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .dropdown-menu li:hover {
+            border-left: none;
+            padding-left: 0;
+        }
+        .dropdown-menu li a:hover {
+            background: #ebf4ff;
+        }
         
         footer {
             text-align: center;
@@ -159,6 +199,11 @@
             
             .links-container {
                 grid-template-columns: 1fr;
+            }
+            /* 适配移动端下拉菜单 */
+            .dropdown-menu {
+                left: 0;
+                top: 100%;
             }
         }
         
@@ -193,14 +238,19 @@
                         <li><a href="R6ROLL.html" target="_blank"><i class="fas fa-chevron-right"></i> R6随机地图抽取姬</a></li>
                         <li><a href="xt.html" target="_blank"><i class="fas fa-chevron-right"></i> 血糖记录器</a></li>
                         <li><a href="wtbt/wtbt.html" target="_blank"><i class="fas fa-chevron-right"></i> 洗种器</a></li>
-                        <li><a href="diabloweb/index.html" target="_blank"><i class="fas fa-chevron-right"></i> 大菠萝1启动器</a></li><li><a href="https://pan.xunlei.com/s/VOnewUTQJkSUpqQP8q6MvQ_fA1?pwd=uw7d#" target="_blank"><i class="fas fa-chevron-right"></i> 下载原版核心</a></li>
+                        <!-- 核心修改：大菠萝1启动器改为下拉菜单 -->
+                        <li>
+                            <a class="dropdown-trigger" href="javascript:void(0)"><i class="fas fa-chevron-right"></i> 大菠萝1启动器 <i class="fas fa-caret-down" style="font-size: 0.8rem;"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="diabloweb/index.html" target="_blank"><i class="fas fa-play"></i> 启动</a></li>
+                                <li><a href="https://pan.xunlei.com/s/VOnewUTQJkSUpqQP8q6MvQ_fA1?pwd=uw7d#" target="_blank"><i class="fas fa-download"></i> 下载原版核心文件</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
                 
             </div>
         </div>
-        
-
         
         <footer>
             <p>© 2025 喵少工具箱索引 | 最后更新: 2025年6月2日</p>
